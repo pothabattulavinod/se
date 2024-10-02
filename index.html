@@ -1,140 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-		<title>JW Player Example</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-		<!-- JW Player script -->
-		<script src="https://ssl.p.jwpcdn.com/player/v/8.22.0/jwplayer.js"></script>
+    <!-- JW Player script -->
+    <script src="https://ssl.p.jwpcdn.com/player/v/8.22.0/jwplayer.js"></script>
+    <!-- JW Player license key -->
+    <script>jwplayer.key = 'EN7MpaKagehNwodFmcDG3/k/QCMXIo8qyzO5Fi+Bxq0=';</script>
 
-		<!-- JW Player license key -->
-		<script>
-			jwplayer.key = 'EN7MpaKagehNwodFmcDG3/k/QCMXIo8qyzO5Fi+Bxq0=';
-		</script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
 
-		<style>
-			body {
-				margin: 0;
-				overflow: hidden;
-			}
+        #player {
+            width: 100% !important;
+            height: 100% !important;
+        }
 
-			#player-container {
-				width: 100vw;
-				height: 100vh;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
+        .jwplayer .jw-progress {
+            background-color: #FF0000;
+        }
 
-			/* Ensuring the player takes full width and height */
-			#player {
-				width: 100%;
-				height: 100%;
-			}
+        button:hover {
+            background: #FF0000 !important;
+        }
 
-			/* Apply zoom to the video inside the player */
-			.jw-video {
-				transform: scaleX();
-				/* Zoom on left and right by 20% */
-				transform-origin: center;
-				/* Keeps the zoom centered */
-			}
+        .jw-icon-forward {
+            background: url('https://www.kindpng.com/picc/b/79-797059_forward-icon-png.png') no-repeat center center;
+            background-size: 100%;
+        }
 
-			/* Custom player style */
-			.jwplayer .jw-progress {
-				background-color: #FF0000;
-			}
+        /* Hide the reset option in the right-click menu */
+        .jw-rightclick .jw-reset {
+            display: none;
+        }
+    </style>
+</head>
 
-			button:hover {
-				background: #FF0000 !important;
-			}
+<body>
 
-			.jw-icon-forward {
-				background: url('https://www.kindpng.com/picc/b/79-797059_forward-icon-png.png') no-repeat center center;
-				background-size: 100%;
-			}
+    <div id="player"></div>
 
-			/* Hide the reset option in the right-click menu */
-			.jw-rightclick .jw-reset {
-				display: none;
-			}
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            var playerInstance = jwplayer("player");
 
-			.jw-icon-rewind {
-				display: none !important;
-			}
-		</style>
-	</head>
+            // Define multiple URLs for the same video
+            var videoUrls = [
+                { file: "https://get4me.koyeb.app/415588?&.mp4", label: "URL 1" },
+                { file: "https://linksshortner.xyz/AgADaR287124?&.mp4", label: "URL 2" },
+                { file: "https://www.tgxlink.workers.dev/dl/66fd0312d05d2ade7b772dbc?&.mp4", label: "URL 3" },
+                { file: "https://www.tg-x-server5.workers.dev/v2/AgADaR73266?&.mp4", label: "URL 4" },
+                { file: "https://tg-movies4u.tgmkvofcl.workers.dev/617316?hash=AgADaR&?.mp4", label: "URL 5" },
+                { file: "https://filestream.elcoders.workers.dev//dl/98568?code=5b4d194b009b2e41be386b9d&?.mp4", label: "URL 6" },
+                { file: "https://nx-file-to-link-bot-6b28a15969a5.herokuapp.com/dl/66fd038fe1551d640eba1eab?&.mp4", label: "URL 7" }
+            ];
 
-	<body>
-		<div id="player-container">
-			<div id="player"></div>
-		</div>
+            // Function to get a random URL from the list
+            function getRandomUrl() {
+                const randomIndex = Math.floor(Math.random() * videoUrls.length);
+                return videoUrls[randomIndex].file;
+            }
 
-		<script type="text/javascript">
-			document.addEventListener("DOMContentLoaded", function() {
-				var playerInstance = jwplayer("player");
+            // Set up JW Player with a random URL
+            playerInstance.setup({
+                aspectratio: "16:9",
+                preload: 'auto',
+                primary: 'html5',
+                sources: [{ file: getRandomUrl() }],
+                tracks: [
+                    {
+                        file: "",
+                        label: "English",
+                        kind: "captions",
+                        default: true
+                    }
+                ],
+                captions: {
+                    backgroundOpacity: 0,
+                    edgeStyle: "raised"
+                },
+                width: '100%',
+                height: '100%',
+                controls: true,
+                displayPlaybackLabel: true,
+                advertising: {
+                    client: "vast",
+                    schedule: [
+                        { offset: "pre", tag: "" }
+                    ]
+                }
+            });
 
-				playerInstance.setup({
-					aspectratio: "16:9",
-					preload: 'none',
-					primary: 'html5',
-					type: 'mp4',
-					sources: [{
-						file: "https://hc15.v01.savethevideo.com/generic-360_playlist-0.mp4",
-						label: "HD"
-					}, ],
-					tracks: [{
-						file: "",
-						label: "English",
-						kind: "captions",
-						default: true
-					}],
-					captions: {
-						backgroundOpacity: 0,
-						edgeStyle: "raised"
-					},
-					width: '100%',
-					height: '100%',
-					controls: true,
-					displayPlaybackLabel: true,
-					advertising: {
-						client: "vast",
-						schedule: [{
-							offset: "pre",
-							tag: ""
-						}, ]
-					}
-				});
+            // Handle player errors and try to load another random URL
+            playerInstance.on('error', function () {
+                console.log("Error occurred, trying a different random URL.");
+                playerInstance.load([{ file: getRandomUrl() }]);
+                playerInstance.play();
+            });
 
-				var lastTimeKey = 'jwplayer-last-time';
+            // Save and restore playback time on ready
+            playerInstance.on('ready', function () {
+                var lastTimeKey = 'jwplayer-last-time';
+                var lastTime = localStorage.getItem(lastTimeKey);
+                if (lastTime) {
+                    playerInstance.seek(parseFloat(lastTime));
+                }
 
-				playerInstance.on('ready', function() {
-					var lastTime = localStorage.getItem(lastTimeKey);
-					if (lastTime) {
-						playerInstance.seek(parseFloat(lastTime));
-					}
+                playerInstance.addButton(
+                    'https://www.kindpng.com/picc/b/79-797059_forward-icon-png.png',
+                    'Forward 10 seconds',
+                    function () {
+                        playerInstance.seek(playerInstance.getPosition() + 10);
+                    },
+                    'forward10'
+                );
+            });
 
-					playerInstance.addButton(
-						'https://www.kindpng.com/picc/b/79-797059_forward-icon-png.png',
-						'Forward 10 seconds',
-						function() {
-							playerInstance.seek(playerInstance.getPosition() + 10);
-						},
-						'forward10'
-					);
-				});
+            // Save the current playback position when the video is paused
+            playerInstance.on('pause', function () {
+                var lastTimeKey = 'jwplayer-last-time';
+                localStorage.setItem(lastTimeKey, playerInstance.getPosition());
+            });
 
-				playerInstance.on('pause', function() {
-					localStorage.setItem(lastTimeKey, playerInstance.getPosition());
-				});
-
-				playerInstance.on('complete', function() {
-					localStorage.setItem(lastTimeKey, 0);
-				});
-			});
-		</script>
-	</body>
+            // Reset the last playback position when the video is complete
+            playerInstance.on('complete', function () {
+                localStorage.setItem('jwplayer-last-time', 0);
+            });
+        });
+    </script>
+</body>
 
 </html>
