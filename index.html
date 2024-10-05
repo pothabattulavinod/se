@@ -62,9 +62,6 @@
                 { file: "https://file-streamx-697cdb6409cc.herokuapp.com/178255?hash=AgADTg&m=1?hash=undefined?&.MP4", label: "URL 9" }
             ];
 
-            var lastTimeKey = 'jwplayer-last-time';
-            var lastUrlKey = 'jwplayer-last-url';
-
             // Function to get a random URL from the list
             function getRandomUrl() {
                 const randomIndex = Math.floor(Math.random() * videoUrls.length);
@@ -72,132 +69,118 @@
             }
 
             // Set up JW Player with a random URL
-            function setupPlayer(url) {
-                playerInstance.setup({
-                    aspectratio: "16:9",
-                    preload: 'auto',
-                    primary: 'html5',
-                    sources: [{ file: url }],
-                    tracks: [
-                        {
-                            file: "https://raw.githubusercontent.com/pothabattulavinod/Ss/refs/heads/main/Saripodhaa%20Sanivaaram.vtt",
-                            label: "English",
-                            kind: "captions",
-                            default: true
-                        },
-                        {
-                            file: "https://linksshortner.xyz/AgAD5R301379?&.eac3",  // Telugu audio
-                            label: "Telugu",
-                            kind: "audio"
-                        }
-                    ],
-                    captions: {
-                        backgroundOpacity: 0,
-                        edgeStyle: "raised"
-                    },
-                    width: '100%',
-                    height: '100%',
-                    controls: true,
-                    displayPlaybackLabel: true,
-                    advertising: {
-                        client: "vast",
-                        schedule: [
-                            { offset: "pre", tag: "" }
-                        ]
+            playerInstance.setup({
+                aspectratio: "16:9",
+                preload: 'auto',
+                primary: 'html5',
+                sources: [{ file: getRandomUrl() }],
+                tracks: [
+                    {
+                        file: "https://raw.githubusercontent.com/pothabattulavinod/Ss/refs/heads/main/Saripodhaa%20Sanivaaram.vtt",
+                        label: "English",
+                        kind: "captions",
+                        default: true
                     }
-                });
+                ],
+                captions: {
+                    backgroundOpacity: 0,
+                    edgeStyle: "raised"
+                },
+                width: '100%',
+                height: '100%',
+                controls: true,
+                displayPlaybackLabel: true,
+                advertising: {
+                    client: "vast",
+                    schedule: [
+                        { offset: "pre", tag: "" }
+                    ]
+                }
+            });
 
-                // Restore playback position after player is ready
-                playerInstance.on('ready', function () {
-                    var lastTime = localStorage.getItem(lastTimeKey);
-                    if (lastTime) {
-                        playerInstance.seek(parseFloat(lastTime));
-                    }
-
-                    playerInstance.addButton(
-                        'https://www.kindpng.com/picc/b/79-797059_forward-icon-png.png',
-                        'Forward 10 seconds',
-                        function () {
-                            playerInstance.seek(playerInstance.getPosition() + 10);
-                        },
-                        'forward10'
-                    );
-                });
-            }
-
-            // Save playback position and switch to a random URL
-            function switchToRandomUrl() {
-                var currentTime = playerInstance.getPosition();
-                localStorage.setItem(lastTimeKey, currentTime);
-
-                var randomUrl = getRandomUrl();
-                localStorage.setItem(lastUrlKey, randomUrl);
-
-                playerInstance.load([{ file: randomUrl }]);
+            // Handle player errors and try to load another random URL
+            playerInstance.on('error', function () {
+                console.log("Error occurred, trying a different random URL.");
+                playerInstance.load([{ file: getRandomUrl() }]);
                 playerInstance.play();
-            }
+            });
 
-            // Restore the last URL and playback position on page load
-            var lastUrl = localStorage.getItem(lastUrlKey);
-            if (lastUrl) {
-                setupPlayer(lastUrl);
-            } else {
-                setupPlayer(getRandomUrl());
-            }
+            // Save and restore playback time on ready
+            playerInstance.on('ready', function () {
+                var lastTimeKey = 'jwplayer-last-time';
+                var lastTime = localStorage.getItem(lastTimeKey);
+                if (lastTime) {
+                    playerInstance.seek(parseFloat(lastTime));
+                }
+
+                playerInstance.addButton(
+                    'https://www.kindpng.com/picc/b/79-797059_forward-icon-png.png',
+                    'Forward 10 seconds',
+                    function () {
+                        playerInstance.seek(playerInstance.getPosition() + 10);
+                    },
+                    'forward10'
+                );
+            });
 
             // Save the current playback position when the video is paused
             playerInstance.on('pause', function () {
-                var currentTime = playerInstance.getPosition();
-                localStorage.setItem(lastTimeKey, currentTime);
+                var lastTimeKey = 'jwplayer-last-time';
+                localStorage.setItem(lastTimeKey, playerInstance.getPosition());
             });
 
             // Reset the last playback position when the video is complete
             playerInstance.on('complete', function () {
-                localStorage.setItem(lastTimeKey, 0);
+                localStorage.setItem('jwplayer-last-time', 0);
             });
 
-            // Handle player errors and try to load another random URL while saving playback
-            playerInstance.on('error', function () {
-                console.log("Error occurred, switching to a different random URL.");
-                switchToRandomUrl();
+            // Handle fullscreen on orientation change
+            window.addEventListener("orientationchange", function () {
+                if (window.orientation === 90 || window.orientation === -90) {
+                    if (!playerInstance.isFullscreen()) {
+                        playerInstance.enterFullscreen();
+                    }
+                } else if (window.orientation === 0 || window.orientation === 180) {
+                    if (playerInstance.isFullscreen()) {
+                        playerInstance.exitFullscreen();
+                    }
+                }
             });
 
-            // Android TV remote control support (keydown event)
+            // Fullscreen toggle for TV remote control and other triggers
             document.addEventListener("keydown", function (e) {
                 switch (e.key) {
-                    case "ArrowRight": // Seek forward
-                    case "Right":       // Android TV compatibility
-                        e.preventDefault(); // Prevent default action
+                    case "F": // For testing with 'F' key on the keyboard (Enter Fullscreen)
+                        if (!playerInstance.isFullscreen()) {
+                            playerInstance.enterFullscreen();
+                        } else {
+                            playerInstance.exitFullscreen();
+                        }
+                        break;
+                    case "Enter": // Android TV Enter key (OK button)
+                    case "OK":    // Android TV OK button compatibility
+                        if (!playerInstance.isFullscreen()) {
+                            playerInstance.enterFullscreen();
+                        } else {
+                            playerInstance.exitFullscreen();
+                        }
+                        break;
+                    case "ArrowRight": // Fast forward 10 seconds
                         playerInstance.seek(playerInstance.getPosition() + 10);
                         break;
-                    case "ArrowLeft": // Seek backward
-                    case "Left":       // Android TV compatibility
-                        e.preventDefault();
+                    case "ArrowLeft": // Rewind 10 seconds
                         playerInstance.seek(playerInstance.getPosition() - 10);
                         break;
                     case "ArrowUp": // Increase volume
-                    case "Up":       // Android TV compatibility
-                        e.preventDefault();
                         playerInstance.setVolume(Math.min(playerInstance.getVolume() + 10, 100));
                         break;
                     case "ArrowDown": // Decrease volume
-                    case "Down":       // Android TV compatibility
-                        e.preventDefault();
                         playerInstance.setVolume(Math.max(playerInstance.getVolume() - 10, 0));
-                        break;
-                    case "Enter": // Play/Pause toggle
-                    case "OK":    // Android TV compatibility (OK button)
-                    case " ":     // Spacebar, also used on some remotes
-                        e.preventDefault();
-                        if (playerInstance.getState() === "playing") {
-                            playerInstance.pause();
-                        } else {
-                            playerInstance.play();
-                        }
                         break;
                     default:
                         break;
                 }
+                e.preventDefault(); // Prevent default actions like scrolling
             });
         });
     </script>
